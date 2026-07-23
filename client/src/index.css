@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   --text: #6b6375;
   --text-h: #08060d;
@@ -56,7 +60,7 @@ body {
 
 #root {
   width: 1126px;
-  max-width: 100%;
+  width: 100%;
   margin: 0 auto;
   text-align: center;
   border-inline: 1px solid var(--border);
@@ -108,4 +112,176 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+}
+/* ============================================================
+   DARK MODE (applied when body has class 'dark-mode')
+   ============================================================ */
+body.dark-mode {
+  background-color: #121212 !important;
+  color: #e0e0e0 !important;
+}
+
+/* ----- Background overrides ----- */
+body.dark-mode .bg-white,
+body.dark-mode .bg-gray-100,
+body.dark-mode .bg-gray-50 {
+  background-color: #1e1e1e !important;
+}
+
+body.dark-mode .bg-gray-200 {
+  background-color: #2a2a2a !important;
+}
+
+/* ----- Text colors ----- */
+body.dark-mode .text-gray-800,
+body.dark-mode .text-gray-900 {
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode .text-gray-600,
+body.dark-mode .text-gray-500 {
+  color: #aaa !important;
+}
+
+/* ----- Borders ----- */
+body.dark-mode .border-gray-200,
+body.dark-mode .border-gray-300 {
+  border-color: #333 !important;
+}
+
+/* ----- Shadows ----- */
+body.dark-mode .shadow-md,
+body.dark-mode .shadow-lg {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* ----- Cards & Containers ----- */
+body.dark-mode .card,
+body.dark-mode .product-card-wrapper {
+  background-color: #1e1e1e !important;
+  border: 1px solid #333 !important;
+}
+
+body.dark-mode .category-section {
+  background-color: #1e1e1e !important;
+}
+
+body.dark-mode .category-title {
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode .see-all-link {
+  color: #febd69 !important;
+}
+
+/* ----- Inputs, textareas, selects ----- */
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select {
+  background-color: #2a2a2a !important;
+  color: #e0e0e0 !important;
+  border-color: #444 !important;
+}
+
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+  color: #888 !important;
+}
+
+body.dark-mode input:focus,
+body.dark-mode textarea:focus,
+body.dark-mode select:focus {
+  border-color: #febd69 !important;
+  box-shadow: 0 0 0 3px rgba(254, 189, 105, 0.2) !important;
+}
+
+/* ----- Dropdown ----- */
+body.dark-mode .dropdown {
+  background-color: #1e1e1e !important;
+  border-color: #333 !important;
+}
+
+body.dark-mode .dropdown-item {
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode .dropdown-item:hover {
+  background-color: #333 !important;
+}
+
+body.dark-mode .dropdown-header {
+  color: #e0e0e0 !important;
+  border-bottom-color: #333 !important;
+}
+
+body.dark-mode .dropdown-divider {
+  border-top-color: #333 !important;
+}
+
+/* ----- Admin Panel ----- */
+body.dark-mode .admin-table {
+  background-color: #1e1e1e !important;
+}
+
+body.dark-mode .admin-table th {
+  background-color: #2a2a2a !important;
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode .admin-table td {
+  border-color: #333 !important;
+}
+
+body.dark-mode .admin-table tr:hover {
+  background-color: #2a2a2a !important;
+}
+
+/* ----- Product Price (keep visible) ----- */
+body.dark-mode .product-price {
+  color: #febd69 !important;
+}
+
+/* ----- Toast Notification ----- */
+body.dark-mode .toast {
+  background-color: #28a745 !important;
+  color: white !important;
+}
+
+/* ============================================================
+   DARK MODE TOGGLE BUTTON
+   ============================================================ */
+.dark-mode-toggle {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  background-color: #37475a;
+  color: #febd69;
+}
+
+.dark-mode-toggle:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(254, 189, 105, 0.3);
+}
+
+body.dark-mode .dark-mode-toggle {
+  background-color: #febd69;
+  color: #111;
+}
+
+/* ============================================================
+   TOAST ANIMATION (already in your code, but keep it)
+   ============================================================ */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
