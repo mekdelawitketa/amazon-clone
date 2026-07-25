@@ -6,6 +6,23 @@ function Header() {
   const navigate = useNavigate();
   const { totalItems } = useCart();
 
+  // ===== SEARCH STATE =====
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchCategory, setSearchCategory] = useState('All');
+
+  // ===== SEARCH HANDLER =====
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      const params = new URLSearchParams();
+      params.append('q', searchQuery.trim());
+      if (searchCategory !== 'All') {
+        params.append('category', searchCategory);
+      }
+      navigate(`/search?${params.toString()}`);
+    }
+  };
+
   // Get user info
   let userInfo = null;
   try {
@@ -33,9 +50,12 @@ function Header() {
       {/* ===== TOP NAVBAR ===== */}
       <div style={styles.topBar}>
         {/* Logo */}
-        <Link to="/" style={styles.logo}>
-          <span style={styles.logoText}>amazon</span>
-          <span style={styles.logoDot}>.com</span>
+        <Link to="/" style={styles.logoContainer}>
+          <img 
+            src="/amazon-logo.png"
+            alt="Amazon Clone" 
+            style={{ height: '35px', width: 'auto', display: 'block' }}
+          />
         </Link>
 
         {/* Delivery Location */}
@@ -44,22 +64,30 @@ function Header() {
           <span style={styles.deliveryLocation}>🇪🇹 Ethiopia</span>
         </div>
 
-        {/* Search Bar */}
-        <div style={styles.searchContainer}>
-          <select style={styles.searchSelect}>
+        {/* ===== SEARCH BAR (FUNCTIONAL) ===== */}
+        <form onSubmit={handleSearch} style={styles.searchContainer}>
+          <select
+            value={searchCategory}
+            onChange={(e) => setSearchCategory(e.target.value)}
+            style={styles.searchSelect}
+          >
             <option>All</option>
             <option>Electronics</option>
             <option>Clothing</option>
             <option>Books</option>
             <option>Gaming</option>
+            <option>Kitchen</option>
+            <option>Fashion</option>
           </select>
           <input
             type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             style={styles.searchInput}
             placeholder="Search Amazon"
           />
-          <button style={styles.searchButton}>🔍</button>
-        </div>
+          <button type="submit" style={styles.searchButton}>🔍</button>
+        </form>
 
         {/* Language Selector */}
         <div style={styles.language}>
@@ -76,11 +104,9 @@ function Header() {
           <div style={styles.account}>
             <span style={styles.accountLabel}>
               {userInfo ? `Hello, ${userName}` : 'Hello, Sign in'}
+                            <span style={styles.dropdownArrow}>▼</span>
             </span>
-            <span style={styles.accountLink}>
-              Account
-              <span style={styles.dropdownArrow}>▼</span>
-            </span>
+            
           </div>
 
           {/* Dropdown Menu */}
@@ -123,8 +149,7 @@ function Header() {
 
         {/* Orders */}
         <Link to="/orders" style={styles.orders}>
-          <span style={styles.ordersLabel}>Returns</span>
-          <span style={styles.ordersLink}>& Orders</span>
+          <span style={styles.ordersLink}>Returns & Orders</span>
         </Link>
 
         {/* Cart */}
@@ -138,14 +163,14 @@ function Header() {
       </div>
 
       {/* ===== SECONDARY NAVBAR ===== */}
-      <div style={styles.bottomBar}>
+      {/* <div style={styles.bottomBar}>
         <button style={styles.allButton}>☰ All</button>
         <Link to="/" style={styles.navLink}>Today's Deals</Link>
         <Link to="/" style={styles.navLink}>Customer Service</Link>
         <Link to="/" style={styles.navLink}>Registry</Link>
         <Link to="/" style={styles.navLink}>Gift Cards</Link>
         <Link to="/" style={styles.navLink}>Sell</Link>
-      </div>
+      </div> */}
     </header>
   );
 }
@@ -167,24 +192,11 @@ const styles = {
     minHeight: '60px',
   },
 
-  logo: {
-    display: 'flex',
-    alignItems: 'center',
+  logoContainer: {
     textDecoration: 'none',
     padding: '4px 8px',
     borderRadius: '2px',
-  },
-
-  logoText: {
-    fontSize: '28px',
-    fontWeight: '700',
-    color: '#febd69',
-  },
-
-  logoDot: {
-    fontSize: '28px',
-    fontWeight: '700',
-    color: 'white',
+    transition: 'border 0.2s',
   },
 
   delivery: {
@@ -353,13 +365,6 @@ const styles = {
     borderRadius: '2px',
   },
 
-  ordersLabel: {
-    fontSize: '12px',
-    color: '#ccc',
-    display: 'block',
-    lineHeight: '1',
-  },
-
   ordersLink: {
     fontSize: '14px',
     fontWeight: '700',
@@ -445,6 +450,10 @@ styleSheet.textContent = `
   }
   .dropdown-signout:hover {
     background-color: #f0f0f0 !important;
+  }
+  .logo-container:hover {
+    border: 1px solid white;
+    padding: 3px 7px !important;
   }
   .account-container:hover {
     border: 1px solid white;

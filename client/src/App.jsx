@@ -16,6 +16,7 @@ import AdminUsers from './screens/AdminUsers';
 import AdminRegisterScreen from './screens/AdminRegisterScreen';
 import AdminLoginScreen from './screens/AdminLoginScreen'; // ✅ NEW
 import AdminCategories from './screens/AdminCategories';
+import SearchScreen from './screens/SearchScreen';
 import './App.css';
 
 function App() {
@@ -112,6 +113,7 @@ function App() {
         {/* ========== ADMIN ROUTES (Standalone - NO Header/Footer) ========== */}
         <Route path="/admin/login" element={<AdminLoginScreen />} />     {/* ✅ NEW */}
         <Route path="/admin/register" element={<AdminRegisterScreen />} />
+        <Route path="/search" element={<SearchScreen />} />
 
         {/* Protected Admin Routes - ONLY AdminLayout */}
         <Route path="/admin" element={<AdminLayout />}>
@@ -121,6 +123,7 @@ function App() {
           <Route path="orders" element={<AdminOrders />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="categories" element={<AdminCategories />} />
+
         </Route>
       </Routes>
     </div>
