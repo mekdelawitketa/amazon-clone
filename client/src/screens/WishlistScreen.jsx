@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
@@ -8,6 +8,7 @@ function WishlistScreen() {
     const { wishlist, loading, fetchWishlist, removeFromWishlist } = useWishlist();
     const { addToCart } = useCart();
     const { darkMode } = useTheme();
+    const [error, setError] = useState('');
 
     useEffect(() => {
         fetchWishlist();
@@ -21,6 +22,8 @@ function WishlistScreen() {
     };
 
     if (loading) return <div style={styles.loading}>Loading wishlist...</div>;
+
+    if (error) return <div style={styles.error}>Error: {error}</div>;
 
     if (wishlist.length === 0) {
         return (
@@ -122,6 +125,7 @@ const getStyles = (darkMode) => ({
         fontSize: '13px',
     },
     loading: { textAlign: 'center', padding: '60px', fontSize: '18px', color: '#666' },
+    error: { textAlign: 'center', padding: '60px', fontSize: '18px', color: '#d32f2f' },
     empty: { textAlign: 'center', padding: '60px' },
     backLink: { color: '#0066c0', textDecoration: 'none', fontSize: '16px' },
 });

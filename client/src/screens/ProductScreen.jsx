@@ -15,7 +15,6 @@ function ProductScreen() {
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
-  // ✅ Check if product is in wishlist
   const inWishlist = product ? isInWishlist(product.id) : false;
 
   useEffect(() => {
@@ -41,7 +40,6 @@ function ProductScreen() {
     }
   };
 
-  // ✅ Wishlist toggle handler
   const handleWishlistToggle = async () => {
     if (!product) return;
     if (inWishlist) {
@@ -84,6 +82,7 @@ function ProductScreen() {
       backgroundColor: darkMode ? '#0d0d1a' : '#fafafa',
       borderRadius: '16px',
       padding: '30px',
+      position: 'relative', // Needed if we want to overlay on image later, but we'll keep it in details.
     },
     image: {
       width: '100%',
@@ -101,7 +100,36 @@ function ProductScreen() {
       display: 'flex',
       flexDirection: 'column',
       gap: '10px',
+      position: 'relative',
     },
+    
+    // ✅ NEW: Heart button wrapper (top right)
+    heartWrapper: {
+      display: 'flex',
+      justifyContent: 'flex-end',
+      width: '100%',
+      marginBottom: '-12px', // Pull it up slightly
+    },
+    heartButton: {
+      background: 'none',
+      border: 'none',
+      fontSize: '36px',
+      cursor: 'pointer',
+      transition: 'all 0.2s ease',
+      padding: '8px',
+      lineHeight: 1,
+      color: darkMode ? '#666' : '#ccc',
+      borderRadius: '50%',
+      width: '56px',
+      height: '56px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    heartButtonActive: {
+      color: '#e63946',
+    },
+
     title: {
       fontSize: '34px',
       fontWeight: '700',
@@ -187,28 +215,6 @@ function ProductScreen() {
       boxShadow: 'none',
     },
 
-    // ✅ WISHLIST BUTTON STYLES
-    wishlistButton: {
-      marginTop: '12px',
-      padding: '16px 50px',
-      fontSize: '18px',
-      fontWeight: '600',
-      backgroundColor: 'transparent',
-      border: '2px solid #ccc',
-      borderRadius: '12px',
-      cursor: 'pointer',
-      transition: 'all 0.2s ease',
-      display: 'inline-block',
-      width: '100%',
-      maxWidth: '350px',
-      color: darkMode ? '#aaa' : '#555',
-    },
-    wishlistButtonActive: {
-      borderColor: '#b12704',
-      color: '#b12704',
-      backgroundColor: '#fff5f5',
-    },
-
     backLink: {
       marginTop: '24px',
     },
@@ -243,7 +249,6 @@ function ProductScreen() {
     <div style={styles.container}>
       <div style={styles.card}>
         <div style={styles.inner}>
-          {/* Image Section */}
           <div style={styles.imageWrapper} className="product-image-wrapper">
             <img 
               src={product.image} 
@@ -253,8 +258,22 @@ function ProductScreen() {
             />
           </div>
 
-          {/* Details Section */}
           <div style={styles.details}>
+            {/* ✅ HEART BUTTON AT TOP RIGHT */}
+            <div style={styles.heartWrapper}>
+              <button
+                onClick={handleWishlistToggle}
+                style={{
+                  ...styles.heartButton,
+                  ...(inWishlist ? styles.heartButtonActive : {}),
+                }}
+                className="heart-button"
+                aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
+              >
+                {inWishlist ? '❤️' : '🤍'}
+              </button>
+            </div>
+
             <h1 style={styles.title}>{product.name}</h1>
             <p style={styles.price}>${product.price}</p>
             <p style={styles.description}>{product.description}</p>
@@ -276,7 +295,6 @@ function ProductScreen() {
               />
             </div>
 
-            {/* ✅ ADD TO CART BUTTON */}
             <button
               onClick={handleAddToCart}
               disabled={product.countInStock === 0}
@@ -287,18 +305,6 @@ function ProductScreen() {
               className="product-add-button"
             >
               {product.countInStock === 0 ? 'Out of Stock' : '🛒 Add to Cart'}
-            </button>
-
-            {/* ✅ WISHLIST BUTTON (NEW) */}
-            <button
-              onClick={handleWishlistToggle}
-              style={{
-                ...styles.wishlistButton,
-                ...(inWishlist ? styles.wishlistButtonActive : {}),
-              }}
-              className="wishlist-button"
-            >
-              {inWishlist ? '❤️ In Wishlist' : '🤍 Add to Wishlist'}
             </button>
 
             <div style={styles.backLink}>
@@ -335,10 +341,6 @@ styleSheet.textContent = `
       width: 100% !important;
       max-width: 100% !important;
     }
-    .wishlist-button {
-      width: 100% !important;
-      max-width: 100% !important;
-    }
     .product-image-wrapper {
       padding: 15px !important;
     }
@@ -361,20 +363,12 @@ styleSheet.textContent = `
     box-shadow: 0 6px 20px rgba(254, 189, 105, 0.4) !important;
   }
 
-  .wishlist-button:hover {
-    transform: scale(1.03);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
-    border-color: #b12704 !important;
-    color: #b12704 !important;
+  /* Heart Button Hover */
+  .heart-button:hover {
+    transform: scale(1.2) !important;
   }
-
-  body.dark-mode .wishlist-button {
-    border-color: #555 !important;
-  }
-
-  body.dark-mode .wishlist-button:hover {
-    border-color: #ff6b6b !important;
-    color: #ff6b6b !important;
+  .heart-button:active {
+    transform: scale(0.9) !important;
   }
 
   .product-quantity-input:focus {

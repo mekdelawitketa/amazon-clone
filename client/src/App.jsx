@@ -14,17 +14,17 @@ import AdminProducts from './screens/AdminProducts';
 import AdminOrders from './screens/AdminOrders';
 import AdminUsers from './screens/AdminUsers';
 import AdminRegisterScreen from './screens/AdminRegisterScreen';
-import AdminLoginScreen from './screens/AdminLoginScreen'; // ✅ NEW
+import AdminLoginScreen from './screens/AdminLoginScreen';
 import AdminCategories from './screens/AdminCategories';
 import SearchScreen from './screens/SearchScreen';
+import WishlistScreen from './screens/WishlistScreen'; // ✅ IMPORT WISHLIST
 import './App.css';
 
 function App() {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
-      {/* ========== PUBLIC ROUTES (with Header + Footer) ========== */}
       <Routes>
-        {/* Public Routes with Header */}
+        {/* ========== PUBLIC ROUTES (with Header + Footer) ========== */}
         <Route
           path="/"
           element={
@@ -110,10 +110,37 @@ function App() {
           }
         />
 
+        {/* ✅ WISHLIST ROUTE (NEW) */}
+        <Route
+          path="/wishlist"
+          element={
+            <>
+              <Header />
+              <main className="container mx-auto px-4 py-8 flex-grow">
+                <WishlistScreen />
+              </main>
+              <Footer />
+            </>
+          }
+        />
+
+        {/* ========== SEARCH ROUTE ========== */}
+        <Route
+          path="/search"
+          element={
+            <>
+              <Header />
+              <main className="container mx-auto px-4 py-8 flex-grow">
+                <SearchScreen />
+              </main>
+              <Footer />
+            </>
+          }
+        />
+
         {/* ========== ADMIN ROUTES (Standalone - NO Header/Footer) ========== */}
-        <Route path="/admin/login" element={<AdminLoginScreen />} />     {/* ✅ NEW */}
+        <Route path="/admin/login" element={<AdminLoginScreen />} />
         <Route path="/admin/register" element={<AdminRegisterScreen />} />
-        <Route path="/search" element={<SearchScreen />} />
 
         {/* Protected Admin Routes - ONLY AdminLayout */}
         <Route path="/admin" element={<AdminLayout />}>
@@ -123,7 +150,6 @@ function App() {
           <Route path="orders" element={<AdminOrders />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="categories" element={<AdminCategories />} />
-
         </Route>
       </Routes>
     </div>
