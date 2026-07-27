@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useTheme } from '../context/ThemeContext';
+import { useWishlist } from '../context/WishlistContext';
 
 function ProductScreen() {
   const { id } = useParams();
@@ -12,6 +13,10 @@ function ProductScreen() {
   const [error, setError] = useState('');
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+
+  // ✅ Check if product is in wishlist
+  const inWishlist = product ? isInWishlist(product.id) : false;
 
   useEffect(() => {
     fetch(`/api/products/${id}`)
@@ -36,10 +41,20 @@ function ProductScreen() {
     }
   };
 
+  // ✅ Wishlist toggle handler
+  const handleWishlistToggle = async () => {
+    if (!product) return;
+    if (inWishlist) {
+      await removeFromWishlist(product.id);
+    } else {
+      await addToWishlist(product.id);
+    }
+  };
+
   const styles = {
     container: {
       padding: '40px 20px',
-      maxWidth: '1400px', // ✅ WIDER container
+      maxWidth: '1400px',
       margin: '0 auto',
     },
     card: {
@@ -55,14 +70,14 @@ function ProductScreen() {
     inner: {
       display: 'flex',
       flexDirection: 'row',
-      gap: '60px', // ✅ BIGGER gap
-      padding: '60px', // ✅ MORE padding
+      gap: '60px',
+      padding: '60px',
       flexWrap: 'wrap',
     },
 
     imageWrapper: {
       flex: '1 1 45%',
-      minWidth: '350px', // ✅ LARGER min width
+      minWidth: '350px',
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
@@ -72,7 +87,7 @@ function ProductScreen() {
     },
     image: {
       width: '100%',
-      maxWidth: '600px', // ✅ BIGGER image
+      maxWidth: '600px',
       height: 'auto',
       maxHeight: '500px',
       objectFit: 'contain',
@@ -82,13 +97,13 @@ function ProductScreen() {
 
     details: {
       flex: '1 1 45%',
-      minWidth: '350px', // ✅ LARGER min width
+      minWidth: '350px',
       display: 'flex',
       flexDirection: 'column',
       gap: '10px',
     },
     title: {
-      fontSize: '34px', // ✅ BIGGER title
+      fontSize: '34px',
       fontWeight: '700',
       color: darkMode ? '#e8e8e8' : '#1a1a2e',
       margin: '0 0 4px 0',
@@ -96,26 +111,26 @@ function ProductScreen() {
       transition: 'color 0.3s ease',
     },
     price: {
-      fontSize: '32px', // ✅ BIGGER price
+      fontSize: '32px',
       fontWeight: '700',
       color: '#b12704',
       margin: '4px 0 8px 0',
     },
     description: {
-      fontSize: '18px', // ✅ BIGGER description
+      fontSize: '18px',
       color: darkMode ? '#bbbbbb' : '#555555',
       lineHeight: '1.8',
       margin: '8px 0',
       transition: 'color 0.3s ease',
     },
     category: {
-      fontSize: '16px', // ✅ BIGGER category
+      fontSize: '16px',
       color: darkMode ? '#999' : '#777',
       margin: '2px 0',
       transition: 'color 0.3s ease',
     },
     stock: {
-      fontSize: '16px', // ✅ BIGGER stock
+      fontSize: '16px',
       color: darkMode ? '#aaa' : '#555',
       margin: '2px 0 12px 0',
       fontWeight: '500',
@@ -136,7 +151,7 @@ function ProductScreen() {
       transition: 'color 0.3s ease',
     },
     quantityInput: {
-      width: '80px', // ✅ BIGGER input
+      width: '80px',
       padding: '12px 16px',
       fontSize: '18px',
       border: darkMode ? '2px solid #444' : '2px solid #ddd',
@@ -150,8 +165,8 @@ function ProductScreen() {
 
     addButton: {
       marginTop: '24px',
-      padding: '16px 50px', // ✅ BIGGER button
-      fontSize: '20px', // ✅ BIGGER text
+      padding: '16px 50px',
+      fontSize: '20px',
       fontWeight: '600',
       backgroundColor: '#febd69',
       border: '1px solid #a88734',
@@ -161,7 +176,7 @@ function ProductScreen() {
       transition: 'all 0.2s ease',
       display: 'inline-block',
       width: '100%',
-      maxWidth: '350px', // ✅ WIDER button
+      maxWidth: '350px',
       boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
     },
     disabledButton: {
@@ -170,6 +185,28 @@ function ProductScreen() {
       cursor: 'not-allowed',
       opacity: 0.6,
       boxShadow: 'none',
+    },
+
+    // ✅ WISHLIST BUTTON STYLES
+    wishlistButton: {
+      marginTop: '12px',
+      padding: '16px 50px',
+      fontSize: '18px',
+      fontWeight: '600',
+      backgroundColor: 'transparent',
+      border: '2px solid #ccc',
+      borderRadius: '12px',
+      cursor: 'pointer',
+      transition: 'all 0.2s ease',
+      display: 'inline-block',
+      width: '100%',
+      maxWidth: '350px',
+      color: darkMode ? '#aaa' : '#555',
+    },
+    wishlistButtonActive: {
+      borderColor: '#b12704',
+      color: '#b12704',
+      backgroundColor: '#fff5f5',
     },
 
     backLink: {
@@ -239,6 +276,7 @@ function ProductScreen() {
               />
             </div>
 
+            {/* ✅ ADD TO CART BUTTON */}
             <button
               onClick={handleAddToCart}
               disabled={product.countInStock === 0}
@@ -249,6 +287,18 @@ function ProductScreen() {
               className="product-add-button"
             >
               {product.countInStock === 0 ? 'Out of Stock' : '🛒 Add to Cart'}
+            </button>
+
+            {/* ✅ WISHLIST BUTTON (NEW) */}
+            <button
+              onClick={handleWishlistToggle}
+              style={{
+                ...styles.wishlistButton,
+                ...(inWishlist ? styles.wishlistButtonActive : {}),
+              }}
+              className="wishlist-button"
+            >
+              {inWishlist ? '❤️ In Wishlist' : '🤍 Add to Wishlist'}
             </button>
 
             <div style={styles.backLink}>
@@ -285,6 +335,10 @@ styleSheet.textContent = `
       width: 100% !important;
       max-width: 100% !important;
     }
+    .wishlist-button {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
     .product-image-wrapper {
       padding: 15px !important;
     }
@@ -305,6 +359,22 @@ styleSheet.textContent = `
     background-color: #f3a847 !important;
     transform: scale(1.03);
     box-shadow: 0 6px 20px rgba(254, 189, 105, 0.4) !important;
+  }
+
+  .wishlist-button:hover {
+    transform: scale(1.03);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+    border-color: #b12704 !important;
+    color: #b12704 !important;
+  }
+
+  body.dark-mode .wishlist-button {
+    border-color: #555 !important;
+  }
+
+  body.dark-mode .wishlist-button:hover {
+    border-color: #ff6b6b !important;
+    color: #ff6b6b !important;
   }
 
   .product-quantity-input:focus {
