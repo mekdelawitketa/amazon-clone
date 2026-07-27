@@ -94,7 +94,12 @@ function Header() {
           <span style={styles.languageFlag}>🇺🇸</span>
           <span style={styles.languageText}>EN</span>
         </div>
-
+          <div>
+            <Link to="/wishlist" style={styles.cart}>
+               <span style={styles.cartIcon}>❤️</span>
+              <span style={styles.cartText}>Wishlist</span>
+            </Link>
+          </div>
         {/* ===== Account & Lists (Dropdown) ===== */}
         <div
           style={styles.accountContainer}
@@ -108,10 +113,8 @@ function Header() {
             </span>
             
           </div>
-          <Link to="/wishlist" style={styles.cart}>
-    <span style={styles.cartIcon}>❤️</span>
-    <span style={styles.cartText}>Wishlist</span>
-</Link>
+        
+         
 
           {/* Dropdown Menu */}
           {isDropdownOpen && (
