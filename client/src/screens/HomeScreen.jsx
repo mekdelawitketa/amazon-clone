@@ -10,64 +10,60 @@ function HomeScreen() {
 
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [slides, setSlides] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [addedProductId, setAddedProductId] = useState(null);
   const [toast, setToast] = useState({ show: false, message: '' });
 
   // ============================================================
-  // 1. HARDCODED SLIDES (100% reliable)
-  // ============================================================
-  const slides = [
-    {
-      id: 1,
-      title: 'Shop Back to School',
-      subtitle: 'School essentials at every price',
-      buttonText: 'Shop now',
-      image: '/images/619geyiQI5L._SX3000_.jpg',
-      fallbackColor: '#1a1a2e', // dark blue
-    },
-    {
-      id: 2,
-      title: 'Gaming store',
-      subtitle: 'Upgrade your gaming gear',
-      buttonText: 'Shop Gaming',
-      tag: '🔥 New Arrivals',
-      image: '/images/71qcoYgEhzL._SX3000_.jpg',
-      fallbackColor: '#2d4059', // light blue (NOT black)
-    }
-  ];
-
-  // ============================================================
-  // 2. LOG THE IMAGE PATHS (to verify in console)
+  // 1. FETCH SLIDES FROM JSON
   // ============================================================
   useEffect(() => {
-    slides.forEach((slide) => {
-      console.log(`📸 Slide ${slide.id} image URL:`, slide.image);
-    });
+    fetch('/data/slides.json')
+      .then((res) => res.json())
+      .then((data) => {
+        console.log('✅ Slides loaded:', data);
+        setSlides(data);
+      })
+      .catch(() => {
+        // Fallback (hardcoded) slides
+        setSlides([
+          {
+            id: 1,
+            title: 'Shop Back to School',
+            subtitle: 'School essentials at every price',
+            buttonText: 'Shop now',
+            image: '/images/slide1.jpg',
+            color: '#1a1a2e',
+          },
+          {
+            id: 2,
+            title: 'Gaming store',
+            subtitle: 'Upgrade your gaming gear',
+            buttonText: 'Shop Gaming',
+            tag: '🔥 New Arrivals',
+            image: '/images/slide2.jpg',
+            color: '#2d4059',
+          }
+        ]);
+      });
   }, []);
 
   // ============================================================
-  // 3. FETCH PRODUCTS & CATEGORIES
+  // 2. FETCH PRODUCTS & CATEGORIES
   // ============================================================
   useEffect(() => {
     Promise.all([
-      fetch('/api/products').then((res) => {
-        if (!res.ok) throw new Error('Products not found');
-        return res.json();
-      }),
-      fetch('/api/categories').then((res) => {
-        if (!res.ok) throw new Error('Categories not found');
-        return res.json();
-      }),
+      fetch('/api/products').then((res) => res.json()),
+      fetch('/api/categories').then((res) => res.json()),
     ])
       .then(([productsData, categoriesData]) => {
         setProducts(productsData || []);
         setCategories(categoriesData || []);
         setLoading(false);
       })
-      .catch((err) => {
-        console.error('Error fetching data:', err);
+      .catch(() => {
         setProducts([]);
         setCategories([]);
         setLoading(false);
@@ -75,18 +71,14 @@ function HomeScreen() {
   }, []);
 
   // ============================================================
-  // 4. SLIDER LOGIC
+  // 3. SLIDER LOGIC (auto-rotate)
   // ============================================================
   useEffect(() => {
     if (slides.length === 0) return;
 
     const timer = setTimeout(() => {
       const interval = setInterval(() => {
-        setCurrentSlide((prev) => {
-          const next = (prev + 1) % slides.length;
-          console.log('🔄 Slide changed to:', next);
-          return next;
-        });
+        setCurrentSlide((prev) => (prev + 1) % slides.length);
       }, 5000);
       window.__slideInterval = interval;
     }, 2000);
@@ -101,31 +93,29 @@ function HomeScreen() {
   }, [slides.length]);
 
   // ============================================================
-  // 5. ADD TO CART HANDLER
+  // 4. ADD TO CART
   // ============================================================
   const handleAddToCart = (e, product) => {
     e.preventDefault();
     e.stopPropagation();
     addToCart(product, 1);
     setAddedProductId(product.id);
-
     setToast({ show: true, message: `✅ ${product.name} added to cart!` });
     setTimeout(() => {
       setToast({ show: false, message: '' });
     }, 2500);
-
     setTimeout(() => setAddedProductId(null), 2000);
   };
 
   // ============================================================
-  // 6. LOADING STATE
+  // 5. LOADING STATE
   // ============================================================
   if (loading) {
     return <div style={getStyles(darkMode).loading}>Loading products...</div>;
   }
 
   // ============================================================
-  // 7. RENDER
+  // 6. RENDER
   // ============================================================
   const getProductsByCategory = (categoryId) => {
     return products.filter((p) => p.category_id === categoryId);
@@ -136,6 +126,10 @@ function HomeScreen() {
   );
 
   const styles = getStyles(darkMode);
+
+  if (slides.length === 0) {
+    return <div style={styles.loading}>Loading slides...</div>;
+  }
 
   return (
     <div style={styles.container}>
@@ -156,12 +150,11 @@ function HomeScreen() {
               backgroundImage: `url(${slide.image})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
-              backgroundColor: slide.fallbackColor,
+              backgroundColor: slide.color || '#1a1a2e',
             }}
           >
             <div style={styles.slideOverlay}></div>
             <div style={styles.slideContent}>
-              <div style={styles.slideEmoji}>📚</div>
               {slide.tag && <span style={styles.slideTag}>{slide.tag}</span>}
               <h2 style={styles.slideTitle}>{slide.title}</h2>
               <p style={styles.slideSubtitle}>{slide.subtitle}</p>
@@ -237,7 +230,7 @@ function HomeScreen() {
 }
 
 // ============================================================
-// 8. STYLES FUNCTION
+// 7. STYLES (truncated for brevity — but all needed)
 // ============================================================
 const getStyles = (darkMode) => ({
   container: {
@@ -309,12 +302,6 @@ const getStyles = (darkMode) => ({
     maxWidth: '500px',
     color: 'white',
     textShadow: '0 2px 10px rgba(0,0,0,0.5)',
-  },
-
-  slideEmoji: {
-    fontSize: '56px',
-    marginBottom: '12px',
-    display: 'block',
   },
 
   slideTag: {
@@ -509,7 +496,7 @@ const getStyles = (darkMode) => ({
 });
 
 // ============================================================
-// 9. HOVER EFFECTS & ANIMATIONS
+// 8. HOVER EFFECTS & ANIMATIONS
 // ============================================================
 const styleSheet = document.createElement('style');
 styleSheet.textContent = `
