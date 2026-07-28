@@ -6,7 +6,7 @@ import { useTheme } from '../context/ThemeContext';
 function HomeScreen() {
   const navigate = useNavigate();
   const { addToCart } = useCart();
-  const { darkMode } = useTheme(); // ✅ Get dark mode
+  const { darkMode } = useTheme();
 
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -16,7 +16,7 @@ function HomeScreen() {
   const [toast, setToast] = useState({ show: false, message: '' });
 
   // ============================================================
-  // 1. HERO SLIDES
+  // 1. HARDCODED SLIDES (100% reliable)
   // ============================================================
   const slides = [
     {
@@ -24,9 +24,8 @@ function HomeScreen() {
       title: 'Shop Back to School',
       subtitle: 'School essentials at every price',
       buttonText: 'Shop now',
-      image: 'https://picsum.photos/seed/school/1200/500',
-      emoji: '📚',
-      color: '#1a1a2e',
+      image: '/images/619geyiQI5L._SX3000_.jpg',
+      fallbackColor: '#1a1a2e', // dark blue
     },
     {
       id: 2,
@@ -34,61 +33,75 @@ function HomeScreen() {
       subtitle: 'Upgrade your gaming gear',
       buttonText: 'Shop Gaming',
       tag: '🔥 New Arrivals',
-      image: 'https://picsum.photos/seed/gaming/1200/500',
-      emoji: '🎮',
-      color: '#0a0a0a',
-    },
-    {
-      id: 3,
-      title: 'Shop Fashion for less',
-      subtitle: 'Jeans under $50 • Tops under $25 • Dresses under $30',
-      buttonText: 'Shop Fashion',
-      image: 'https://picsum.photos/seed/fashion/1200/500',
-      emoji: '👗',
-      color: '#533483',
-    },
-    {
-      id: 4,
-      title: 'Top categories in Kitchen',
-      subtitle: 'Cooker • Pots and Pans • Kettles',
-      buttonText: 'Shop Kitchen',
-      image: 'https://picsum.photos/seed/kitchen/1200/500',
-      emoji: '🍳',
-      color: '#2d4059',
-    },
+      image: '/images/71qcoYgEhzL._SX3000_.jpg',
+      fallbackColor: '#2d4059', // light blue (NOT black)
+    }
   ];
 
   // ============================================================
-  // 2. FETCH DATA
+  // 2. LOG THE IMAGE PATHS (to verify in console)
+  // ============================================================
+  useEffect(() => {
+    slides.forEach((slide) => {
+      console.log(`📸 Slide ${slide.id} image URL:`, slide.image);
+    });
+  }, []);
+
+  // ============================================================
+  // 3. FETCH PRODUCTS & CATEGORIES
   // ============================================================
   useEffect(() => {
     Promise.all([
-      fetch('/api/products').then(res => res.json()),
-      fetch('/api/categories').then(res => res.json())
+      fetch('/api/products').then((res) => {
+        if (!res.ok) throw new Error('Products not found');
+        return res.json();
+      }),
+      fetch('/api/categories').then((res) => {
+        if (!res.ok) throw new Error('Categories not found');
+        return res.json();
+      }),
     ])
       .then(([productsData, categoriesData]) => {
-        setProducts(productsData);
-        setCategories(categoriesData);
+        setProducts(productsData || []);
+        setCategories(categoriesData || []);
         setLoading(false);
       })
       .catch((err) => {
         console.error('Error fetching data:', err);
+        setProducts([]);
+        setCategories([]);
         setLoading(false);
       });
   }, []);
 
   // ============================================================
-  // 3. AUTO-SLIDE CAROUSEL
+  // 4. SLIDER LOGIC
   // ============================================================
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 5000);
-    return () => clearInterval(interval);
+    if (slides.length === 0) return;
+
+    const timer = setTimeout(() => {
+      const interval = setInterval(() => {
+        setCurrentSlide((prev) => {
+          const next = (prev + 1) % slides.length;
+          console.log('🔄 Slide changed to:', next);
+          return next;
+        });
+      }, 5000);
+      window.__slideInterval = interval;
+    }, 2000);
+
+    return () => {
+      clearTimeout(timer);
+      if (window.__slideInterval) {
+        clearInterval(window.__slideInterval);
+        window.__slideInterval = null;
+      }
+    };
   }, [slides.length]);
 
   // ============================================================
-  // 4. ADD TO CART HANDLER (WITH TOAST)
+  // 5. ADD TO CART HANDLER
   // ============================================================
   const handleAddToCart = (e, product) => {
     e.preventDefault();
@@ -105,28 +118,27 @@ function HomeScreen() {
   };
 
   // ============================================================
-  // 5. LOADING STATE
+  // 6. LOADING STATE
   // ============================================================
   if (loading) {
     return <div style={getStyles(darkMode).loading}>Loading products...</div>;
   }
 
   // ============================================================
-  // 6. RENDER
+  // 7. RENDER
   // ============================================================
   const getProductsByCategory = (categoryId) => {
-    return products.filter(p => p.category_id === categoryId);
+    return products.filter((p) => p.category_id === categoryId);
   };
 
-  const activeCategories = categories.filter(cat => 
-    getProductsByCategory(cat.id).length > 0
+  const activeCategories = categories.filter(
+    (cat) => getProductsByCategory(cat.id).length > 0
   );
 
   const styles = getStyles(darkMode);
 
   return (
     <div style={styles.container}>
-      {/* ===== TOAST ===== */}
       {toast.show && (
         <div style={styles.toast}>
           <span>{toast.message}</span>
@@ -141,12 +153,15 @@ function HomeScreen() {
             style={{
               ...styles.slide,
               transform: `translateX(-${currentSlide * 100}%)`,
-              background: `url(${slide.image}) no-repeat center/cover, ${slide.color}`,
+              backgroundImage: `url(${slide.image})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundColor: slide.fallbackColor,
             }}
           >
             <div style={styles.slideOverlay}></div>
             <div style={styles.slideContent}>
-              <div style={styles.slideEmoji}>{slide.emoji}</div>
+              <div style={styles.slideEmoji}>📚</div>
               {slide.tag && <span style={styles.slideTag}>{slide.tag}</span>}
               <h2 style={styles.slideTitle}>{slide.title}</h2>
               <p style={styles.slideSubtitle}>{slide.subtitle}</p>
@@ -154,15 +169,14 @@ function HomeScreen() {
             </div>
           </div>
         ))}
-
-        {/* Dots */}
         <div style={styles.dotsContainer}>
           {slides.map((_, index) => (
             <button
               key={index}
               style={{
                 ...styles.dot,
-                backgroundColor: index === currentSlide ? '#febd69' : 'rgba(255,255,255,0.5)',
+                backgroundColor:
+                  index === currentSlide ? '#febd69' : 'rgba(255,255,255,0.5)',
               }}
               onClick={() => setCurrentSlide(index)}
             />
@@ -181,7 +195,6 @@ function HomeScreen() {
                 See all →
               </Link>
             </div>
-            
             <div style={styles.categoryGrid}>
               {categoryProducts.slice(0, 6).map((product) => (
                 <div key={product.id} style={styles.productCardWrapper}>
@@ -191,7 +204,9 @@ function HomeScreen() {
                         src={product.image}
                         alt={product.name}
                         style={styles.productImage}
-                        onError={(e) => (e.target.src = 'https://via.placeholder.com/200')}
+                        onError={(e) =>
+                          (e.target.src = 'https://via.placeholder.com/200')
+                        }
                       />
                       <h4 style={styles.productName}>{product.name}</h4>
                       <p style={styles.productPrice}>${product.price}</p>
@@ -222,7 +237,7 @@ function HomeScreen() {
 }
 
 // ============================================================
-// 7. STYLES FUNCTION (FULL DARK MODE SUPPORT)
+// 8. STYLES FUNCTION
 // ============================================================
 const getStyles = (darkMode) => ({
   container: {
@@ -256,9 +271,12 @@ const getStyles = (darkMode) => ({
   sliderContainer: {
     position: 'relative',
     width: '100%',
-    height: '420px',
+    height: '500px',
     overflow: 'hidden',
     marginBottom: '24px',
+    backgroundColor: '#1a1a2e',
+    zIndex: 1,
+    borderRadius: '8px',
   },
 
   slide: {
@@ -271,6 +289,8 @@ const getStyles = (darkMode) => ({
     display: 'flex',
     alignItems: 'center',
     padding: '60px',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
   },
 
   slideOverlay: {
@@ -280,12 +300,12 @@ const getStyles = (darkMode) => ({
     width: '100%',
     height: '100%',
     backgroundColor: 'rgba(0,0,0,0.4)',
-    zIndex: 1,
+    zIndex: 2,
   },
 
   slideContent: {
     position: 'relative',
-    zIndex: 2,
+    zIndex: 3,
     maxWidth: '500px',
     color: 'white',
     textShadow: '0 2px 10px rgba(0,0,0,0.5)',
@@ -332,6 +352,7 @@ const getStyles = (darkMode) => ({
     color: '#111',
     cursor: 'pointer',
     transition: 'background 0.2s',
+    zIndex: 3,
   },
 
   dotsContainer: {
@@ -341,7 +362,7 @@ const getStyles = (darkMode) => ({
     transform: 'translateX(-50%)',
     display: 'flex',
     gap: '10px',
-    zIndex: 3,
+    zIndex: 4,
   },
 
   dot: {
@@ -361,6 +382,8 @@ const getStyles = (darkMode) => ({
     borderRadius: '8px',
     boxShadow: '0 2px 4px rgba(0,0,0,0.06)',
     transition: 'background-color 0.3s ease',
+    position: 'relative',
+    zIndex: 0,
   },
 
   categoryHeader: {
@@ -401,7 +424,8 @@ const getStyles = (darkMode) => ({
     borderRadius: '12px',
     boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
     overflow: 'hidden',
-    transition: 'transform 0.2s, box-shadow 0.2s, background-color 0.3s ease',
+    transition:
+      'transform 0.2s, box-shadow 0.2s, background-color 0.3s ease',
     border: darkMode ? '1px solid #333' : '1px solid #f0f0f0',
   },
 
@@ -485,7 +509,7 @@ const getStyles = (darkMode) => ({
 });
 
 // ============================================================
-// 8. HOVER EFFECTS & ANIMATIONS
+// 9. HOVER EFFECTS & ANIMATIONS
 // ============================================================
 const styleSheet = document.createElement('style');
 styleSheet.textContent = `

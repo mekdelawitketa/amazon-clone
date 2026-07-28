@@ -1,0 +1,21 @@
+[
+  {
+    "id": 1,
+    "title": "Shop Back to School",
+    "subtitle": "School essentials at every price",
+    "buttonText": "Shop now",
+    "image": "/images/619geyiQI5L._SX3000_.jpg",
+    "color": "#1a1a2e",
+    "emoji": "📚"
+  },
+  {
+    "id": 2,
+    "title": "Gaming store",
+    "subtitle": "Upgrade your gaming gear",
+    "buttonText": "Shop Gaming",
+    "tag": "🔥 New Arrivals",
+    "image": "/images/71qcoYgEhzL._SX3000_.jpg",
+    "color": "#2d4059",  
+    "emoji": "🎮"
+  }
+]
